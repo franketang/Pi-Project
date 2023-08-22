@@ -1,45 +1,64 @@
+# Pi-Project
+Pi Calculation using PySpark on Google Cloud Platform
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.Scanner;
+This repository demonstrates how to estimate the value of pi using distributed computing through PySpark, hosted on the Google Cloud Platform (GCP).
 
-public class GenerateRandomNumbers {
-    public static void main(String[] args) {
-        System.out.println("How many random numbers to generate:"); // we use 1000000 to test
-        Scanner input = new Scanner(System.in);
-        int RandomNumCount = input.nextInt();
+Presentation
+[Project Pi Slides](https://docs.google.com/presentation/d/1pw_erd39RDkqkPLh4RyZR9yZTZDuUkNF/edit#slide=id.p1)
 
-        System.out.println("What's the radius?"); //we use 200 to test
-        int radius = input.nextInt();
-        int diameter = radius * 2;
-        input.close();
+Overview
+We'll be utilizing the Monte Carlo method for pi estimation, where random points are plotted within a square, and we ascertain how many fall within an inscribed circle.
 
-        try {
+![pi_1](https://github.com/franketang/Pi-Project/assets/29631514/c8eee36e-f384-413b-be3f-28bfd7b0f08e)
 
-            // it creates file input4
-            File file = new File("./PiCalculationInput");
-            file.createNewFile();
+![pi_2](https://github.com/franketang/Pi-Project/assets/29631514/e1a8a601-6130-47ee-aaa2-8e791e8996ad)
 
-            // Prepare input data 
-            FileWriter writer = new FileWriter(file);
-            //writer.write(radius + "\r\n");
-            //writer.write(System.getProperty("line.separator"));
 
-            for (int i = 0; i < RandomNumCount; i++) {
-                int xvalue = (int) (Math.random() * diameter);
-                int yvalue = (int) (Math.random() * diameter);
-                writer.write("(" + xvalue + "," + yvalue + ") ");
-            }
+#Design:
+Randomly choose a point (x, y) inside a square.
+Verify if the point lies inside or outside the circle. Assign a value of 1 for inside, 0 for outside.
+Count the points inside the circle (S) versus the total points (N) in the square.
+Compute pi using the equation: pi = 4 * (S/N).
+Setting Up and Execution
 
-            // send the data into the file
-            writer.flush();
+#Prerequisites:
+Google Cloud DataProc: Ensure you've access to DataProc on GCP.
+PySpark Job Creation:
+Activate the Cloud Shell from the top-right corner of the console.
+Open the editor using the top-right button in the Cloud Shell.
+Create a new Python file for your Spark job. Insert your code.
+Save the file (e.g., as pi.py) and exit.
+Running the PySpark Job on GCP:
+Initiate Cloud Shell:
 
-            // closing the write after pushing the data inside the .txt file
-            writer.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-}
-    
+#Activate the Cloud Shell.
+If faced with an authentication issue, use: gcloud auth login and follow the browser instructions.
+Submit PySpark Job:
+
+bash
+Copy code
+gcloud dataproc jobs submit pyspark pi.py --cluster=<cluster-name> --region=<region> -- --partitions <partition-count> --output_uri <output-path>
+Inspect Output Files:
+
+bash
+Copy code
+gsutil ls gs://<bucket-name>/output/
+Download Results:
+
+bash
+Copy code
+gsutil cp gs://<bucket-name>/output/* .
+Merge Results:
+
+bash
+Copy code
+cat part-00003 >> part-00000
+Display the Outcome:
+
+bash
+Copy code
+cat part-00003
+Expected Outcome:
+The result will be the estimated value of pi.
+
+The above README provides a concise guide on estimating pi using PySpark on GCP. It offers clear steps and has been organized for easy readability. Adjustments can be made based on any added features or changes in the process.
